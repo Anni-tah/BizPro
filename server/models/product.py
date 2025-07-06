@@ -2,9 +2,9 @@ from extensions import db
 from datetime import datetime
 from sqlalchemy_serializer import SerializerMixin
 
-class Product(db.Model):
+class Product(db.Model, SerializerMixin):
     __tablename__ = 'products'
-    serialize_rules=('-sale_items')
+    serialize_rules=('-sale_items', '-supplier.products')
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)

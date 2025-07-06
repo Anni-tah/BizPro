@@ -1,9 +1,19 @@
 from flask import jsonify, make_response, request
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource
 from models import supplier, db
 
 class SupplierResource(Resource):
+    @jwt_required()
     def get(self):
+        current_user = get_jwt_identity()
+        role = current_user.get('role')
+
+        # Check if the user has permission to view suppliers
+        if role != 'admin':
+            return make_response({"error": "Not authorised to view suppliers"}, 403)
+        
+
         suppliers = [s.to_dict() for s in supplier.Supplier.query.all()]
         return make_response(jsonify(suppliers), 200)
 
@@ -28,16 +38,35 @@ class SupplierResource(Resource):
         return make_response(new_supplier.to_dict(), 201)
     
 class SupplierByIDResource(Resource):
+    @jwt_required()
     def get(self, id):
+        current_user = get_jwt_identity()
+        role = current_user.get('role')
+        user_id = current_user.get('id')
+
         sup = supplier.Supplier.query.filter_by(id=id).first()
         if not sup:
             return make_response({"error": "Supplier not found"}, 404)
+        
+        # Check if the user has permission to view this supplier
+        if role != 'admin' and sup.id != user_id:
+            return make_response({"error": "Not authorised to view this supplier"}, 403)
         return make_response(jsonify(sup.to_dict()), 200)
 
+    @jwt_required()
     def patch(self, id):
+        current_user = get_jwt_identity()
+        role = current_user.get('role')
+        user_id = current_user.get('id')
+
         sup = supplier.Supplier.query.filter(supplier.Supplier.id == id).first()
         if not sup:
             return make_response({"error": "Supplier not found"}, 404)
+        
+        # Check if the user has permission to update this supplier
+        if role != 'admin' and sup.id != user_id:
+            return make_response({"error": "Not authorised to update this supplier"}, 403)
+        
 
         data = request.get_json()
         for attr in data:
@@ -49,7 +78,16 @@ class SupplierByIDResource(Resource):
         response_dict = sup.to_dict()
         return make_response(response_dict, 200)
 
+    @jwt_required()
     def delete(self, id):
+        current_user = get_jwt_identity()
+        role = current_user.get('role')
+        user_id = current_user.get('id')
+
+        # Check if the user has permission to delete this supplier
+        if role != 'admin':
+            return make_response({"error": "Not authorised to delete suppliers"}, 403)
+
         sup = supplier.Supplier.query.get(id)
         if not sup:
             return make_response({"error": "Supplier not found"}, 404)

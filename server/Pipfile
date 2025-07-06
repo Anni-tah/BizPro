@@ -10,6 +10,8 @@ flask = "*"
 flask-sqlalchemy = "*"
 flask-migrate = "*"
 python-dotenv = "*"
+flask-restful = "*"
+sqlalchemy-serializer = "*"
 flask-jwt-extended = "*"
 
 [dev-packages]

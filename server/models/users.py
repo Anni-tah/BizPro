@@ -15,8 +15,10 @@ class User(db.Model, SerializerMixin):
     password_hash = db.Column(db.String(128), nullable=False)
     role = db.Column(db.String(20), nullable=False, default='customer')       # 'admin', 'storekeeper', 'customer','supplier' default='customer') 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
 
     sales = db.relationship('Sale', back_populates='user', lazy=True)
+    supplier = db.relationship('Supplier', back_populates='user', uselist=False, lazy=True)
 
 
     def set_password(self, password):
