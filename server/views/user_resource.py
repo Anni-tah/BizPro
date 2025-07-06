@@ -17,9 +17,9 @@ class UserResource(Resource):
         new_user=User(
             username=data['username'],
             email=data['email'],
-            password_hash=data['password_hash'],
             role=data['role']
         )
+        new_user.set_password(data['password'])
 
         db.session.add(new_user)
         db.session.commit()

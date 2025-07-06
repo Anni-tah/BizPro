@@ -10,9 +10,13 @@ class Product(db.Model):
     name = db.Column(db.String(120), nullable=False)
     description = db.Column(db.Text)
     price = db.Column(db.Float, nullable=False)
-    stock = db.Column(db.Integer, nullable=False, default=0)
+    quantity = db.Column(db.Integer, nullable=False, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    supplier_id = db.Column(db.Integer, db.ForeignKey('suppliers.id'), nullable=False)
 
-    sale_items = db.relationship('SaleItem', back_populates='product', lazy=True)
+
+    supplier = db.relationship('Supplier', back_populates='products', lazy=True)
+    items = db.relationship('SaleItem', back_populates='product', lazy=True)
+
     def __repr__(self):
-        return f"<Product {self.name}, Price: {self.price}, Stock: {self.stock}>"
+        return f"<Product {self.name}, Price: {self.price}, Stock: {self.quantity}>"
