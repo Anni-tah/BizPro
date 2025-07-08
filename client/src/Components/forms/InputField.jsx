@@ -1,3 +1,4 @@
+import React from 'react';
 const InputField = ({ label, name, type = "text", placeholder, register, error }) => {
     return (
       <div className="mb-4">

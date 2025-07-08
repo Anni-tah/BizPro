@@ -1,1 +1,10 @@
 @import "tailwindcss";
+
+/* Define custom colors */
+:root {
+  --color-brick-red: #B22222;
+  --color-blue: #1D4ED8;     /* Tailwind's blue-700 */
+  --color-blue-light: #3B82F6; /* Tailwind's blue-500 */
+  --color-white: #ffffff;
+  --color-gray: #F3F4F6;
+}

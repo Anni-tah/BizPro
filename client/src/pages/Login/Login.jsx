@@ -1,7 +1,7 @@
-
+import React from "react";
 import { useForm } from "react-hook-form";  
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema } from "../../schemas/loginSchema";
+import loginSchema from "../../schemas/loginSchema";
 import PasswordField from "../../Components/forms/PasswordField";
 import InputField from "../../Components/forms/InputField";
 import Button from "../../Components/forms/Button";
@@ -16,8 +16,27 @@ const Login = () => {
     }
     );
     const onSubmit = async (data) => {
-        console.log("Form submitted:", data);
-        // send to backend
+        try {
+            const response = await fetch("http://localhost:5000/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (!response.ok) {
+                throw new Error("Login failed");
+            }
+
+            const result = await response.json();
+            console.log("Login successful:", result);
+        }
+        catch (error) {
+            console.error("Error during login:", error);
+            alert("Login failed. Please check your credentials and try again.");
+        }
+        
     };
     return(
         <div className="flex flex-col items-center justify-center min-h-screen bg-[#2d2d2d] px-4">
@@ -64,5 +83,6 @@ const Login = () => {
         </div>
     );
     }
+export default Login;
 
     

@@ -1,16 +1,20 @@
-const Button = ({ type, children, className, onClick, disabled }) => {
-    return (
-        <button
-            type={type}
-            onClick={onClick}
-            disabled={disabled}
-            className={`w-full p-2 px-4 bg-[#525333] text-white mt-4 hover:bg-[#b8723e] 
-                focus:outline-none focus:ring-2 focus:ring-[#cf8852] ${className} ${
-                disabled ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-        >
-            {children}
-        </button>
-    );
+import React from "react";
+
+function Button({ label, onClick, className = "", type = "button", alt = "" }) {
+  return (
+    <button
+      onClick={onClick}
+      type={type}
+      aria-label={alt || label}
+      className={`text-white px-6 py-3 rounded-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${className}`}
+      style={{
+        backgroundColor: "var(--color-brick-red)",
+        color: "var(--color-white)",
+      }}
+    >
+      {label}
+    </button>
+  );
 }
+
 export default Button;

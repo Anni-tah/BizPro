@@ -1,6 +1,7 @@
 import { useState } from "react";
+import React from "react";
 
-const PasswordField = ({ register, errors, label, placeholder }) => {
+const PasswordField = ({ register, errors={},name,label, placeholder }) => {
     const [showPassword, setShowPassword] = useState(false);
     
     const togglePasswordVisibility = () => {
@@ -13,10 +14,10 @@ const PasswordField = ({ register, errors, label, placeholder }) => {
         <div className="relative">
             <input
             type={showPassword ? "text" : "password"}
-            {...register("password")}
+            {...register(name)}
             placeholder={placeholder}
             className={`w-full p-2 px-4 border rounded focus:outline-none focus:border-primary ${
-                errors.password ? "border-red-500" : "border-dark"
+                errors.name? "border-red-500" : "border-dark"
             }`}
             />
             <button
@@ -27,7 +28,7 @@ const PasswordField = ({ register, errors, label, placeholder }) => {
             {showPassword ? "Hide" : "Show"}
             </button>
         </div>
-        {errors.password && (
+        {errors[name] && (
             <p className="text-red-500 text-sm">{errors.password.message}</p>
         )}
         </div>
