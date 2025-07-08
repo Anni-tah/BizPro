@@ -1,6 +1,7 @@
 from flask import jsonify, make_response, request
 from flask_restful import Resource
-from models import Product, db
+from models import Product
+from extensions import db
 from models import Supplier
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -28,10 +29,7 @@ class ProductResource(Resource):
         if not all(k in data for k in ("name", "description", "price", "quantity","supplier_id")):
             return make_response({"error": "Missing required fields"}, 400)
         
-        # Validate supplier_id exists
-        if not Supplier.query.get(data['supplier_id']):
-            return make_response({"error": "Supplier not found"}, 404)
-        
+        #set status
         if role=='admin':
            status=data.get('status', 'approved')
         else:

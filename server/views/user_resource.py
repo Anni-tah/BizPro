@@ -1,7 +1,8 @@
 from flask import jsonify, make_response, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource
-from models import User, db
+from models import User
+from extensions import db
 
 class UserResource(Resource):
     @jwt_required()

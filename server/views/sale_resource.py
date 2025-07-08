@@ -1,7 +1,8 @@
 from flask import jsonify, make_response, request
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import sale, db
+from models import Sale
+from extensions import db
 
 class SaleResource(Resource):
     @jwt_required()
@@ -12,9 +13,9 @@ class SaleResource(Resource):
 
     #admin to view all sales and users to view their own sales
         if role == 'admin':
-            sales = [sale_item.to_dict() for sale_item in sale.Sale.query.all()]
+            sales = [sale_item.to_dict() for sale_item in Sale.query.all()]
         else:
-            sales = [sale_item.to_dict() for sale_item in sale.Sale.query.filter_by(user_id=user_id).all()]
+            sales = [sale_item.to_dict() for sale_item in Sale.query.filter_by(user_id=user_id).all()]
 
         return make_response(jsonify(sales), 200)
 
@@ -30,7 +31,7 @@ class SaleResource(Resource):
         if not all(k in data for k in ( "total_amount","status", "payment_method")):
             return make_response({"error": "Missing required fields"}, 400)
 
-        new_sale = sale.Sale(
+        new_sale = Sale(
             user_id=user_id,  
             total_amount=data['total_amount'],
             status=data.get('status', 'completed'),  # Default to 'completed' if not provided
@@ -49,7 +50,7 @@ class SaleByIDResource(Resource):
         role = current_user.get('role')
         user_id = current_user.get('id')
 
-        sale_item = sale.Sale.query.filter_by(id=id).first()
+        sale_item = Sale.query.filter_by(id=id).first()
         if not sale_item:
             return make_response({"error": "Sale not found"}, 404)
         
@@ -64,7 +65,7 @@ class SaleByIDResource(Resource):
         role = current_user.get('role')
         user_id = current_user.get('id')
 
-        sale_item = sale.Sale.query.filter(sale.Sale.id == id).first()
+        sale_item = Sale.query.filter(Sale.id == id).first()
         if not sale_item:
             return make_response({"error": "Sale not found"}, 404)
         
@@ -89,7 +90,7 @@ class SaleByIDResource(Resource):
         role = current_user.get('role')
         user_id = current_user.get('id')
 
-        sale_item = sale.Sale.query.get(id)
+        sale_item = Sale.query.get(id)
         if not sale_item:
             return make_response({"error": "Sale not found"}, 404)
 

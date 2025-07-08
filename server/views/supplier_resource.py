@@ -1,7 +1,8 @@
 from flask import jsonify, make_response, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource
-from models import supplier, db
+from models import Supplier
+from extensions import db
 
 class SupplierResource(Resource):
     @jwt_required()
@@ -14,7 +15,7 @@ class SupplierResource(Resource):
             return make_response({"error": "Not authorised to view suppliers"}, 403)
         
 
-        suppliers = [s.to_dict() for s in supplier.Supplier.query.all()]
+        suppliers = [s.to_dict() for s in Supplier.query.all()]
         return make_response(jsonify(suppliers), 200)
 
     def post(self):
@@ -24,7 +25,7 @@ class SupplierResource(Resource):
         if not all(k in data for k in ("name", "contact_person", "phone_number", "email", "address")):
             return make_response({"error": "Missing required fields"}, 400)
 
-        new_supplier = supplier.Supplier(
+        new_supplier = Supplier(
             name=data['name'],
             contact_person=data['contact_person'],
             phone_number=data['phone_number'],
@@ -44,7 +45,7 @@ class SupplierByIDResource(Resource):
         role = current_user.get('role')
         user_id = current_user.get('id')
 
-        sup = supplier.Supplier.query.filter_by(id=id).first()
+        sup = Supplier.query.filter_by(id=id).first()
         if not sup:
             return make_response({"error": "Supplier not found"}, 404)
         
@@ -59,7 +60,7 @@ class SupplierByIDResource(Resource):
         role = current_user.get('role')
         user_id = current_user.get('id')
 
-        sup = supplier.Supplier.query.filter(supplier.Supplier.id == id).first()
+        sup = Supplier.query.filter(Supplier.id == id).first()
         if not sup:
             return make_response({"error": "Supplier not found"}, 404)
         
@@ -85,10 +86,10 @@ class SupplierByIDResource(Resource):
         user_id = current_user.get('id')
 
         # Check if the user has permission to delete this supplier
-        if role != 'admin':
+        if role != 'admin' and user_id != id:
             return make_response({"error": "Not authorised to delete suppliers"}, 403)
 
-        sup = supplier.Supplier.query.get(id)
+        sup = Supplier.query.get(id)
         if not sup:
             return make_response({"error": "Supplier not found"}, 404)
 

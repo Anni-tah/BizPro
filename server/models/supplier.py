@@ -4,7 +4,7 @@ from sqlalchemy_serializer import SerializerMixin
 
 class Supplier(db.Model, SerializerMixin):
     __tablename__ = 'suppliers'
-    serialize_rules = ('-products', '-user.supplier')
+    serialize_rules = ('-products', '-user')
     
     id = db.Column(db.Integer, db.ForeignKey('users.id'),primary_key=True)
     name = db.Column(db.String(100), nullable=False, unique=True)

@@ -7,12 +7,12 @@ name = "pypi"
 flask-cors = "*"
 psycopg2-binary = "*"
 flask = "*"
-flask-sqlalchemy = "*"
 flask-migrate = "*"
 python-dotenv = "*"
+flask-jwt-extended = "*"
 flask-restful = "*"
 sqlalchemy-serializer = "*"
-flask-jwt-extended = "*"
+flask-sqlalchemy = "*"
 
 [dev-packages]
 
