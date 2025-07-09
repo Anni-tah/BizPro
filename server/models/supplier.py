@@ -16,6 +16,8 @@ class Supplier(db.Model, SerializerMixin):
 
     products= db.relationship('Product', back_populates='supplier', lazy=True)
     user = db.relationship('User', back_populates='supplier', lazy=True)
+    deliveries = db.relationship('SupplierDelivery', back_populates='supplier', lazy=True, cascade='all, delete-orphan')
+    supplier_orders = db.relationship('SupplierOrder', back_populates='supplier', lazy=True, cascade='all, delete-orphan')
 
     
     def __repr__(self):
