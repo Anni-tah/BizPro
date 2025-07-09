@@ -7,7 +7,7 @@ from .supplier import Supplier
 
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
-    serialize_rules=('-sales.user','-supplier.user','-password_hash', '-customer_orders.customer.password_hash', '-customer_orders.customer.email', '-customer_orders.customer.username')
+    serialize_rules=('-sales.user','-supplier.user','-password_hash','-customer_orders.customer','-supplier_orders.storekeeper','-deliveries_as_shopkeeper.shopkeeper','-deliveries_as_customer.customer')
 
 
     id = db.Column(db.Integer, primary_key=True)
@@ -22,7 +22,9 @@ class User(db.Model, SerializerMixin):
     supplier = db.relationship('Supplier', back_populates='user', uselist=False, lazy=True)
     customer_orders = db.relationship('CustomerOrder', back_populates='customer', lazy=True, cascade='all, delete-orphan')
     supplier_orders = db.relationship('SupplierOrder', back_populates='storekeeper', lazy=True, cascade='all, delete-orphan')
-
+    deliveries_as_shopkeeper = db.relationship('Delivery', foreign_keys='Delivery.shopkeeper_id', back_populates='shopkeeper', lazy=True, cascade='all, delete-orphan')
+    deliveries_as_customer = db.relationship('Delivery', foreign_keys='Delivery.customer_id', back_populates='customer', lazy=True, cascade='all, delete-orphan')
+    payments = db.relationship('Payment', back_populates='user', lazy=True, cascade='all, delete-orphan')
 
 
     def set_password(self, password):
