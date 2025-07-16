@@ -1,14 +1,13 @@
 from flask import request, jsonify, make_response
 from flask_restful import Resource
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from models import Inventory, Product
 from extensions import db
 
 class InventoryResource(Resource):
     @jwt_required()
     def get(self):
-        current_user = get_jwt_identity()
-        role = current_user.get('role')
+        role = get_jwt().get('role')
 
         if role in ['admin', 'storekeeper']:
             inventories = Inventory.query.all()
@@ -18,8 +17,7 @@ class InventoryResource(Resource):
 
     @jwt_required()
     def post(self):
-        current_user = get_jwt_identity()
-        role = current_user.get('role')
+        role = get_jwt().get('role')
 
         if role not in ['admin', 'storekeeper']:
             return make_response({"error": "Only admin or storekeeper can add inventory"}, 403)
@@ -45,8 +43,7 @@ class InventoryResource(Resource):
 class InventoryByIDResource(Resource):
     @jwt_required()
     def get(self, id):
-        current_user = get_jwt_identity()
-        role = current_user.get('role')
+        role = get_jwt().get('role')
 
         inventory = Inventory.query.get(id)
         if not inventory:
@@ -59,8 +56,7 @@ class InventoryByIDResource(Resource):
 
     @jwt_required()
     def patch(self, id):
-        current_user = get_jwt_identity()
-        role = current_user.get('role')
+        role = get_jwt().get('role')
 
         if role not in ['admin', 'storekeeper']:
             return make_response({"error": "Unauthorized to update inventory"}, 403)
@@ -78,8 +74,7 @@ class InventoryByIDResource(Resource):
 
     @jwt_required()
     def delete(self, id):
-        current_user = get_jwt_identity()
-        role = current_user.get('role')
+        role = get_jwt().get('role')
 
         if role != 'admin':
             return make_response({"error": "Only admin can delete inventory"}, 403)

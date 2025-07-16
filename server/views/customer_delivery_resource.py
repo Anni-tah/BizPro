@@ -1,15 +1,15 @@
 from flask import request, jsonify, make_response
 from flask_restful import Resource
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from models import Delivery
 from extensions import db
 
 class CustomerDeliveryResource(Resource):
     @jwt_required()
     def get(self):
-        current_user = get_jwt_identity()
-        role = current_user.get('role')
-        user_id = current_user.get('id')
+        user_id = get_jwt_identity()
+        claims = get_jwt()
+        role = claims.get('role')
 
         if role == 'supplier':
             return make_response({"error": "Access denied"}, 403)
@@ -28,8 +28,9 @@ class CustomerDeliveryResource(Resource):
     @jwt_required()
     def post(self):
         data = request.get_json()
-        current_user = get_jwt_identity()
-        role = current_user.get('role')
+        user_id = get_jwt_identity()
+        claims = get_jwt()
+        role = claims.get('role')
 
         if role not in ['admin', 'storekeeper']:
             return make_response({"error": "Access denied"}, 403)
@@ -54,15 +55,13 @@ class CustomerDeliveryResource(Resource):
         except Exception as e:
             db.session.rollback()
             return make_response({"error": str(e)}, 500)
-    
 class CustomerDeliveryByIDResource(Resource):
     @jwt_required()
     def get(self, id):
-        current_user = get_jwt_identity()
-        role = current_user.get('role')
-        user_id = current_user.get('id')
+        user_id = get_jwt_identity()
+        role = get_jwt().get('role')
 
-        delivery = Delivery.query.filter_by(id=id).first()
+        delivery = Delivery.query.get(id)
         if not delivery:
             return make_response({"error": "Delivery not found"}, 404)
 
@@ -70,14 +69,13 @@ class CustomerDeliveryByIDResource(Resource):
             return make_response(jsonify(delivery.to_dict()), 200)
         else:
             return make_response({"error": "Not authorised to view this delivery"}, 403)
-        
+
     @jwt_required()
     def patch(self, id):
-        current_user = get_jwt_identity()
-        role = current_user.get('role')
-        user_id = current_user.get('id')
+        user_id = get_jwt_identity()
+        role = get_jwt().get('role')
 
-        delivery = Delivery.query.filter_by(id=id).first()
+        delivery = Delivery.query.get(id)
         if not delivery:
             return make_response({"error": "Delivery not found"}, 404)
 
@@ -90,11 +88,11 @@ class CustomerDeliveryByIDResource(Resource):
 
         db.session.commit()
         return make_response(delivery.to_dict(), 200)
-    
+
     @jwt_required()
     def delete(self, id):
-        current_user = get_jwt_identity()
-        role = current_user.get('role')
+        user_id = get_jwt_identity()
+        role = get_jwt().get('role')
 
         if role not in ['admin', 'storekeeper']:
             return make_response({"error": "Access denied"}, 403)

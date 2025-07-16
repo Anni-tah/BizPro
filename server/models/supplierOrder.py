@@ -4,7 +4,7 @@ from sqlalchemy_serializer import SerializerMixin
 
 class SupplierOrder(db.Model, SerializerMixin):
     __tablename__ = 'supplier_orders'
-    serialize_rules = ('-items', '-storekeeper', '-supplier', '-delivery', '-payments')
+    serialize_rules = ('-items', '-storekeeper', '-supplier', '-delivery', '-payments', '-supplier_order_items')
 
     id = db.Column(db.Integer, primary_key=True)
     storekeeper_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -19,6 +19,7 @@ class SupplierOrder(db.Model, SerializerMixin):
     supplier = db.relationship('Supplier', back_populates='supplier_orders', lazy=True)
     delivery = db.relationship('SupplierDelivery', back_populates='supplier_order', lazy=True, uselist=False, cascade='all, delete-orphan')
     payments = db.relationship('Payment', back_populates='supplier_order', lazy=True, cascade='all, delete-orphan')
+    items = db.relationship('SupplierOrderItem', back_populates='supplier_order', lazy=True)
 
 
 

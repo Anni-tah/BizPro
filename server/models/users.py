@@ -4,6 +4,8 @@ from extensions import db
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from .supplier import Supplier
+from .sale import Sale
+from .customer_deliveries import Delivery
 
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
@@ -22,9 +24,10 @@ class User(db.Model, SerializerMixin):
     supplier = db.relationship('Supplier', back_populates='user', uselist=False, lazy=True)
     customer_orders = db.relationship('CustomerOrder', back_populates='customer', lazy=True, cascade='all, delete-orphan')
     supplier_orders = db.relationship('SupplierOrder', back_populates='storekeeper', lazy=True, cascade='all, delete-orphan')
-    deliveries_as_shopkeeper = db.relationship('Delivery', foreign_keys='Delivery.shopkeeper_id', back_populates='shopkeeper', lazy=True, cascade='all, delete-orphan')
-    deliveries_as_customer = db.relationship('Delivery', foreign_keys='Delivery.customer_id', back_populates='customer', lazy=True, cascade='all, delete-orphan')
     payments = db.relationship('Payment', back_populates='user', lazy=True, cascade='all, delete-orphan')
+
+    deliveries_as_shopkeeper = db.relationship('Delivery', back_populates='shopkeeper', foreign_keys='Delivery.shopkeeper_id', lazy=True, cascade='all, delete-orphan')
+    deliveries_as_customer = db.relationship('Delivery', back_populates='customer', foreign_keys='Delivery.customer_id', lazy=True, cascade='all, delete-orphan')
 
 
     def set_password(self, password):

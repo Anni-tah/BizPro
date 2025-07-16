@@ -13,7 +13,7 @@ class SupplierDelivery(db.Model, SerializerMixin):
     status = db.Column(db.String(20), nullable=False, default='pending')  # 'pending', 'in_transit', 'delivered', 'cancelled'
 
     supplier = db.relationship('Supplier', back_populates='deliveries', lazy=True)
-    supplier_order = db.relationship('SupplierOrder', back_populates='delivery', lazy=True, cascade='all, delete-orphan')
+    supplier_order = db.relationship('SupplierOrder', back_populates='delivery', lazy=True,)
 
     def __repr__(self):
         return f"<SupplierDelivery {self.id}, Supplier ID: {self.supplier_id}, Status: {self.status}>"

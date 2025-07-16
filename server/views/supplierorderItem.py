@@ -1,33 +1,31 @@
 from flask import request, jsonify, make_response
 from flask_restful import Resource
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from extensions import db
 from models import SupplierOrderItem, SupplierOrder, Product
 
 class SupplierOrderItemResource(Resource):
     @jwt_required()
     def get(self):
-        current_user = get_jwt_identity()
-        role = current_user.get('role')
-        user_id = current_user.get('id')
+        role = get_jwt().get('role')
+        user_id = get_jwt_identity()
 
         if role == 'admin':
-            items = [item.to_dict() for item in SupplierOrderItem.query.all()]
+            items = SupplierOrderItem.query.all()
         else:
-            items = SupplierOrderItem.query.join(SupplierOrder).filter(SupplierOrder.storekeeper_id == user_id).all()
-            items = [item.to_dict() for item in items]
+            items = SupplierOrderItem.query.join(SupplierOrder)\
+                .filter(SupplierOrder.storekeeper_id == user_id).all()
 
-        return make_response(jsonify(items), 200)
+        return make_response(jsonify([item.to_dict() for item in items]), 200)
 
     @jwt_required()
     def post(self):
-        current_user = get_jwt_identity()
-        role = current_user.get('role')
-        user_id = current_user.get('id')
-
+        role = get_jwt().get('role')
+        user_id = get_jwt_identity()
         data = request.get_json()
 
-        if not all(k in data for k in ("supplier_order_id", "product_id", "quantity", "unit_price")):
+        required_fields = ("supplier_order_id", "product_id", "quantity", "unit_price")
+        if not all(k in data for k in required_fields):
             return make_response({"error": "Missing required fields"}, 400)
 
         order = SupplierOrder.query.get(data['supplier_order_id'])
@@ -56,7 +54,6 @@ class SupplierOrderItemResource(Resource):
 
         return make_response(new_item.to_dict(), 201)
 
-
 class SupplierOrderItemByIDResource(Resource):
     @jwt_required()
     def get(self, id):
@@ -67,9 +64,8 @@ class SupplierOrderItemByIDResource(Resource):
 
     @jwt_required()
     def patch(self, id):
-        current_user = get_jwt_identity()
-        role = current_user.get('role')
-        user_id = current_user.get('id')
+        role = get_jwt().get('role')
+        user_id = get_jwt_identity()
 
         item = SupplierOrderItem.query.get(id)
         if not item:
@@ -80,7 +76,6 @@ class SupplierOrderItemByIDResource(Resource):
             return make_response({"error": "Not authorized to edit this item"}, 403)
 
         data = request.get_json()
-
         if 'quantity' in data:
             item.quantity = data['quantity']
         if 'unit_price' in data:
@@ -93,9 +88,8 @@ class SupplierOrderItemByIDResource(Resource):
 
     @jwt_required()
     def delete(self, id):
-        current_user = get_jwt_identity()
-        role = current_user.get('role')
-        user_id = current_user.get('id')
+        role = get_jwt().get('role')
+        user_id = get_jwt_identity()
 
         item = SupplierOrderItem.query.get(id)
         if not item:
@@ -107,5 +101,4 @@ class SupplierOrderItemByIDResource(Resource):
 
         db.session.delete(item)
         db.session.commit()
-
         return make_response({"message": "Supplier order item deleted successfully"}, 200)

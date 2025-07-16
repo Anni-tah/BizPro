@@ -1,5 +1,6 @@
 import React from "react";
 
+
 function Cta() {
     return (
         <section className="bg-blue-700 text-white text-center py-16 px-4">

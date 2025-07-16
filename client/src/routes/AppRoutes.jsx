@@ -1,4 +1,3 @@
-// src/routes/AppRoutes.jsx
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
@@ -8,6 +7,7 @@ import Contact from "../pages/Contact";
 import Pricing from "../pages/Pricing";
 import Login from "../pages/Login/Login";
 import Signup from "../pages/signup/SignUp";
+import Dashboard from "../pages/Dashboard"; 
 import NotFound from "../pages/NotFound";
 
 const AppRoutes = () => {
@@ -19,6 +19,8 @@ const AppRoutes = () => {
       <Route path="/pricing" element={<Pricing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/dashboard/:role" element={<Dashboard />} />
+      
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

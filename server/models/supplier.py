@@ -9,7 +9,7 @@ class Supplier(db.Model, SerializerMixin):
     id = db.Column(db.Integer, db.ForeignKey('users.id'),primary_key=True)
     name = db.Column(db.String(100), nullable=False, unique=True)
     contact_person = db.Column(db.String(100), nullable=False)
-    phone_number = db.Column(db.String(15), nullable=False)
+    phone_number = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(100), nullable=False, unique=True)
     address = db.Column(db.String(200), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

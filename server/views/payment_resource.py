@@ -1,14 +1,14 @@
 from flask import request, jsonify, make_response
 from flask_restful import Resource
-from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import Payment, db
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
+from models import Payment
+from extensions import db
 
 class PaymentResource(Resource):
     @jwt_required()
     def get(self):
-        current_user = get_jwt_identity()
-        role = current_user.get('role')
-        user_id = current_user.get('id')
+        role = get_jwt().get('role')
+        user_id = get_jwt_identity()
 
         if role == 'admin':
             payments = Payment.query.all()
@@ -19,8 +19,7 @@ class PaymentResource(Resource):
 
     @jwt_required()
     def post(self):
-        current_user = get_jwt_identity()
-        user_id = current_user.get('id')
+        user_id = get_jwt_identity()
 
         data = request.get_json()
         required_fields = ['amount', 'payment_method']
@@ -45,9 +44,8 @@ class PaymentResource(Resource):
 class PaymentByIDResource(Resource):
     @jwt_required()
     def get(self, id):
-        current_user = get_jwt_identity()
-        role = current_user.get('role')
-        user_id = current_user.get('id')
+        role = get_jwt().get('role')
+        user_id = get_jwt_identity()
 
         payment = Payment.query.filter_by(id=id).first()
         if not payment:
@@ -60,9 +58,8 @@ class PaymentByIDResource(Resource):
 
     @jwt_required()
     def patch(self, id):
-        current_user = get_jwt_identity()
-        role = current_user.get('role')
-        user_id = current_user.get('id')
+        role = get_jwt().get('role')
+        user_id = get_jwt_identity()
 
         payment = Payment.query.filter_by(id=id).first()
         if not payment:
@@ -81,9 +78,8 @@ class PaymentByIDResource(Resource):
     
     @jwt_required()
     def delete(self, id):
-        current_user = get_jwt_identity()
-        role = current_user.get('role')
-        user_id = current_user.get('id')
+        role = get_jwt().get('role')
+        user_id = get_jwt_identity()
 
         payment = Payment.query.filter_by(id=id).first()
         if not payment:

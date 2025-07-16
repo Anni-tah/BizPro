@@ -1,15 +1,14 @@
 from flask import request, jsonify, make_response
 from flask_restful import Resource
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from extensions import db
 from models import SupplierOrderItem, SupplierOrder, Product, Supplier
 
 class SupplierOrderResource(Resource):
     @jwt_required()
     def get(self):
-        current_user = get_jwt_identity()
-        role = current_user.get('role')
-        user_id = current_user.get('id')
+        user_id = get_jwt_identity()
+        role = get_jwt().get('role')
 
         if role == 'admin':
             orders = SupplierOrder.query.all()
@@ -25,9 +24,8 @@ class SupplierOrderResource(Resource):
 
     @jwt_required()
     def post(self):
-        current_user = get_jwt_identity()
-        role = current_user.get('role')
-        storekeeper_id = current_user.get('id')
+        user_id = get_jwt_identity()
+        role = get_jwt().get('role')
 
         if role != 'storekeeper':
             return make_response({"error": "Only storekeepers can create supplier orders"}, 403)
@@ -43,12 +41,12 @@ class SupplierOrderResource(Resource):
 
         total_amount = 0
         new_order = SupplierOrder(
-            storekeeper_id=storekeeper_id,
+            storekeeper_id=user_id,
             supplier_id=data['supplier_id'],
-            total_amount=0  # temporary, we'll update after items
+            total_amount=0  # placeholder, updated after items
         )
         db.session.add(new_order)
-        db.session.flush()  # to get new_order.id before commit
+        db.session.flush()  # Get new_order.id before commit
 
         for item in data['items']:
             product = Product.query.get(item['product_id'])
@@ -74,12 +72,12 @@ class SupplierOrderResource(Resource):
 
         return make_response(new_order.to_dict(rules=('items', 'items.product')), 201)
 
+
 class SupplierOrderByIDResource(Resource):
     @jwt_required()
     def get(self, id):
-        current_user = get_jwt_identity()
-        role = current_user.get('role')
-        user_id = current_user.get('id')
+        user_id = get_jwt_identity()
+        role = get_jwt().get('role')
 
         order = SupplierOrder.query.get(id)
         if not order:
@@ -94,9 +92,8 @@ class SupplierOrderByIDResource(Resource):
 
     @jwt_required()
     def patch(self, id):
-        current_user = get_jwt_identity()
-        role = current_user.get('role')
-        user_id = current_user.get('id')
+        user_id = get_jwt_identity()
+        role = get_jwt().get('role')
 
         order = SupplierOrder.query.get(id)
         if not order:
@@ -106,19 +103,15 @@ class SupplierOrderByIDResource(Resource):
             return make_response({"error": "Not authorized to update this order"}, 403)
 
         data = request.get_json()
-        allowed_fields = ['status']
-
-        for field in allowed_fields:
-            if field in data:
-                setattr(order, field, data[field])
+        if 'status' in data:
+            order.status = data['status']
 
         db.session.commit()
         return make_response(order.to_dict(rules=('items', 'items.product')), 200)
 
     @jwt_required()
     def delete(self, id):
-        current_user = get_jwt_identity()
-        role = current_user.get('role')
+        role = get_jwt().get('role')
 
         if role != 'admin':
             return make_response({"error": "Only admin can delete supplier orders"}, 403)
@@ -130,4 +123,3 @@ class SupplierOrderByIDResource(Resource):
         db.session.delete(order)
         db.session.commit()
         return make_response({"message": "Supplier order deleted successfully"}, 200)
-

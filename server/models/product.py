@@ -4,7 +4,7 @@ from sqlalchemy_serializer import SerializerMixin
 
 class Product(db.Model, SerializerMixin):
     __tablename__ = 'products'
-    serialize_rules = ('-items', '-supplier.products')
+    serialize_rules = ('-items', '-supplier.products', '-inventory.product', '-order_items.product', '-supplier_order_items.product')
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
@@ -18,7 +18,9 @@ class Product(db.Model, SerializerMixin):
     supplier = db.relationship('Supplier', back_populates='products', lazy=True)
     items = db.relationship('SaleItem', back_populates='product', lazy=True, cascade='all, delete-orphan')
     inventory = db.relationship('Inventory', back_populates='product', lazy=True, cascade='all, delete-orphan')
-    order_items = db.relationship('SupplierOrderItem', back_populates='product', lazy=True, cascade='all, delete-orphan')
+   
+    supplier_order_items = db.relationship('SupplierOrderItem', back_populates='product', lazy=True, cascade='all, delete-orphan')
+   
 
     
 
